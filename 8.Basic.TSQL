@@ -1,0 +1,98 @@
+DECLARE @name varchar(10); 
+PRINT ISNULL(@name, 'NULL');
+
+SET @name = 'Elijah';
+PRINT @name;
+GO
+
+DECLARE @name varchar(20);
+SELECT @name = LName 
+FROM GrandSlamDB.dbo.Players 
+WHERE Id = 3
+PRINT @name
+GO
+
+DECLARE @number int = 18
+
+IF @number >= 18
+	PRINT('number is equal to or greater than 18')
+
+SET @number = 5
+IF @number >= 18
+	PRINT('number is equal to or greater than 18')
+ELSE
+	PRINT('number is less than 18');
+GO
+
+DECLARE @counter int = 0;
+WHILE @counter < 10
+BEGIN 
+SET @counter = @counter + 1
+PRINT 'counter: ' + CAST(@counter as varchar)
+END
+GO
+
+CREATE Procedure spGetAllEmployees
+AS 
+	SELECT * FROM Employees;
+GO
+
+EXECUTE spGetAllEmployees;
+GO
+
+CREATE Function fnGetPlayersAvgAces (@playerID int)
+RETURNS int
+AS
+	BEGIN
+		DECLARE @avgAces int;
+		SET @avgAces = (SELECT AVG(Aces) FROM PlayerStats WHERE PlayerID = @playerID)
+		RETURN @avgAces
+	END
+GO
+
+PRINT dbo.fnGetPlayersAvgAces(5);
+GO
+
+CREATE TRIGGER trSomeTrigger
+ON Courts
+FOR INSERT, UPDATE, DELETE
+AS
+	IF @@ROWCOUNT = 0
+		RETURN
+
+	SET NOCOUNT ON
+
+	SELECT * FROM inserted;
+	SELECT * FROM deleted;
+		
+	IF EXISTS (SELECT 1 FROM inserted) AND EXISTS (SELECT 1 FROM deleted)
+		BEGIN
+			IF NOT UPDATE(City)
+				RETURN	
+			PRINT 'UPDATE'		
+		END
+	ELSE IF EXISTS (SELECT 1 FROM inserted) AND NOT EXISTS (SELECT 1 FROM deleted)
+		BEGIN
+			PRINT 'INSERT'
+		END
+	ELSE IF EXISTS (SELECT 1 FROM deleted) AND NOT EXISTS (SELECT 1 FROM inserted)
+		BEGIN
+			PRINT 'DELETE'
+		END
+GO
+
+INSERT Courts VALUES
+('No. 3 Court', 'NY', 1000, 'Grass'),
+('No. 4 Court', 'NY', 900, 'Grass')
+
+UPDATE Courts
+SET Capasity = 'London'
+WHERE Id IN (11, 12)
+
+UPDATE Courts
+SET Capasity = 500
+WHERE Id IN (11, 12)
+
+DELETE Courts
+WHERE Id IN (11, 12)
+
